@@ -6,6 +6,8 @@ testDir = "./test/"
 mData = {}
 fData = {}
 
+punct = ".,'\":;!@#$%^&*()_-+=?/|\\”“’‘"
+
 def openData():
 	allData = os.listdir(trainDir)
 	allData.sort()
@@ -20,6 +22,23 @@ def openData():
 def fileToMap(fileName, dic):
 	tweetFile = open(fileName, errors='replace')
 	dic[fileName] = tweetFile.read().encode('ascii','ignore').decode('ascii')
-			
+
+# def dictToLines(dic):
+	# lines = []
+	# for key in dic:
+		# lines.append(dic[key].splitlines())
+	# return lines
+	
+def lineToTokens(line):
+	tokens = line.split()
+	for token in tokens:
+		token = normalize(token)
+	return tokens
+	
+def normalize(str):
+	return str.lower().strip(punct)
+
+def tally(array, n):
+	
 openData()
-print(len(fData))
+
