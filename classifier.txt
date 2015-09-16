@@ -1,0 +1,5 @@
+import fileinput.py 
+
+trainDir = "./train/"
+testDir = "./test/"
+
