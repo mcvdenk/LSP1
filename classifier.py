@@ -1,4 +1,7 @@
+# -*- coding: utf-8 -*-
+
 import os
+import re
 
 trainDir = "./train/"
 testDir = "./test/"
@@ -7,8 +10,7 @@ mData = {}
 fData = {}
 mTokens = {}
 fTokens = {}
-
-punct = ".,'\":;!@#$%^&*()_-+=?/|\\”“’‘"
+p = re.compile("[.,'\":;!@#$%^&*()_\-+=?/|\u201C\u201D\u2018\u2019]")
 
 class Counter(dict):
 	def __missing__(self, key):
@@ -23,7 +25,7 @@ def openData():
 		elif file.startswith("F"):
 			fData[file] = fileToEntry(trainDir + file)
 		else:
-			print("We tried to do some loading but, well it failed!")
+			print("Loading of data failed")
 
 def fileToEntry(fileName):
 	tweetFile = open(fileName, errors='replace')
@@ -36,13 +38,17 @@ def fileToEntry(fileName):
 	# return lines
 	
 def lineToTokens(line):
+	tokenArray = []
 	tokens = line.split()
 	for token in tokens:
 		token = normalize(token)
-	return tokens
+		tokenArray.append(token)
+	return tokenArray
 	
 def normalize(str):
-	return str.lower().strip(punct)
+	normWord = str.lower()
+	normWord = p.sub("", normWord)
+	return normWord
 
 def tokenToNgram(tokens, n):
 	ngrams = []
