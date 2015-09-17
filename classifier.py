@@ -52,24 +52,37 @@ def normalize(str):
 
 def tokenToNgram(tokens, n):
 	ngrams = []
-	for i in range(len(tokens)-n+1):
+	for i in range(n-1, len(tokens)):
 		ngram = ""
-		for j in range(n):
-			ngram.append(tokens[i+j])
-			if j<n-1: ngram.append(" ")
+		for j in range(0, n):
+			if j == 0:
+				ngram = tokens[i-j] + ngram
+				ngrams.append(ngram)
+			else:
+				ngram = tokens[i-j] + " " + ngram
+				ngrams.append(ngram)
 	return ngrams
-			
+
 def tally(ngrams):
 	c = Counter()
 	for ngram in ngrams:
 		c[ngram] += 1
 	return c
 
-#def mergeTallies(list):
-
+#def mergeTallies():
+	
 openData()
-line = fData['F-train1.txt']
-tokens = lineToTokens(line)
-print(tally(tokens))
+
+for key in mData.items():
+	lineToTokens(mData[key])
+
+for key in fData.items():
+	lineToTokens(fData[key])
+
+for i in range(1,4):
+	ngrams = tokenToNgram([mData, fData], i)
+	tally(ngrams)
+
+
 
 
