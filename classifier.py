@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import os
+import os, operator
 import re
 
 trainDir = "./train/"
@@ -10,7 +10,7 @@ mData = {}
 fData = {}
 mTokens = {}
 fTokens = {}
-p = re.compile("[.,'\":;!@#$%^&*()_\-+=?/|\u201C\u201D\u2018\u2019]")
+p = re.compile("[~.,'\":;!@#$%^&*()_\-+=?/|\u201C\u201D\u2018\u2019]")
 
 class Counter(dict):
 	def __missing__(self, key):
@@ -40,13 +40,16 @@ def fileToEntry(fileName):
 def lineToTokens(line):
 	tokenArray = []
 	tokens = line.split()
+	#print(tokens)
 	for token in tokens:
 		token = normalize(token)
-		tokenArray.append(token)
+		#print(token)
+		if token != '':
+			tokenArray.append(token)
 	return tokenArray
 	
 def normalize(str):
-	normWord = str.lower()
+	normWord = str.lower().replace("usermention", "").replace("rt", "").replace("RT","")
 	normWord = p.sub("", normWord)
 	return normWord
 
@@ -57,10 +60,9 @@ def tokenToNgram(tokens, n):
 		for j in range(0, n):
 			if j == 0:
 				ngram = tokens[i-j] + ngram
-				ngrams.append(ngram)
 			else:
 				ngram = tokens[i-j] + " " + ngram
-				ngrams.append(ngram)
+		ngrams.append(ngram)
 	return ngrams
 
 def tally(ngrams):
@@ -70,18 +72,44 @@ def tally(ngrams):
 	return c
 
 #def mergeTallies():
+
+def dictionary(lines):
+	word = lineToTokens(lines)
+	for i in range(1,4):
+		ngrams = tokenToNgram(word, i)
+		sorted_ngrams = sortCount(tally(ngrams))
+		for j in range(0,11):
+			print(sorted_ngrams[j])
+		
+		for j in range(1,5):
+			count = 0;
+			for word in sorted_ngrams:
+				if word[1] == j:
+					count += 1
+			print(str(count) + " " + str(i) + "-grams occur " + str(j) + " time(s)")
+		print( "Unique n-grams with n=" + str(i) + ": " + str(len(sorted_ngrams)))
+		print ("")
+
+def sortCount(dict):
+	dict_sorted = sorted(dict.items(), key=operator.itemgetter(1), reverse=True)
+	return dict_sorted
 	
 openData()
 
-for key in mData.items():
-	lineToTokens(mData[key])
+#files = fData.values()
+#print(files)
 
-for key in fData.items():
-	lineToTokens(fData[key])
+dest = dict(list(fData.items()) + list(mData.items()))
+#print(dest)
 
-for i in range(1,4):
-	ngrams = tokenToNgram([mData, fData], i)
-	tally(ngrams)
+for key in dest.items():
+	dictionary(dest[key].values())
+
+
+
+
+
+
 
 
 
